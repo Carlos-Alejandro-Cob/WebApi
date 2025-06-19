@@ -1,94 +1,112 @@
 // MiMangaBot/Controllers/V1/MangaController.cs
 using MiMangaBot.Domain.Entities;
+using MiMangaBot.Domain.Models;
 using MiMangaBot.Services.Features.Mangas;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks; // Necesario para Task<IActionResult>
-using System; // Necesario para Guid
+using System.Threading.Tasks;
+using System;
 
-namespace MiMangaBot.Controllers.V1;
-
-[ApiController]
-[Route("api/v1/[controller]")]
-public class MangaController : ControllerBase
+namespace MiMangaBot.Controllers.V1
 {
-    private readonly MangaService _mangaService;
-
-    public MangaController(MangaService mangaService)
+    [ApiController]
+    [Route("api/v1/[controller]")]
+    public class MangaController : ControllerBase
     {
-        _mangaService = mangaService;
-    }
+        private readonly MangaService _mangaService;
 
-    // GET api/v1/manga
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var mangas = await _mangaService.GetAll();
-        return Ok(mangas);
-    }
-
-    // GET api/v1/manga/{id}
-    [HttpGet("{id}")] // Cambiado a {id} sin :int porque ahora es string
-    public async Task<IActionResult> GetById([FromRoute] string id) // Cambiado a string id
-    {
-        var manga = await _mangaService.GetById(id);
-        if (manga == null)
+        public MangaController(MangaService mangaService)
         {
-            return NotFound(new { Message = $"Manga con MangadexId {id} no encontrado." });
-        }
-        return Ok(manga);
-    }
-
-    // POST api/v1/manga
-    [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Manga manga)
-    {
-        // Si el cliente no envía un MangadexId, generamos uno nuevo.
-        // Si lo envía, lo usará, pero ten cuidado con duplicados en tu DB.
-        if (string.IsNullOrEmpty(manga.MangadexId))
-        {
-             manga.MangadexId = Guid.NewGuid().ToString();
+            _mangaService = mangaService;
         }
 
-        if (!ModelState.IsValid)
+        // GET api/v1/manga (sin paginación - mantener para compatibilidad)
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
         {
-            return BadRequest(ModelState);
-        }
-        var newManga = await _mangaService.Add(manga);
-        // Usamos MangadexId en CreatedAtAction
-        return CreatedAtAction(nameof(GetById), new { id = newManga.MangadexId }, newManga);
-    }
-
-    // PUT api/v1/manga/{id}
-    [HttpPut("{id}")] // Cambiado a {id} sin :int
-    public async Task<IActionResult> Update([FromRoute] string id, [FromBody] Manga mangaToUpdate) // Cambiado a string id
-    {
-        // Es crucial que el ID del cuerpo coincida con el ID de la ruta para seguridad y consistencia.
-        if (id != mangaToUpdate.MangadexId) // Comparamos MangadexId
-        {
-            return BadRequest(new { Message = "El ID de la ruta no coincide con el MangadexId del cuerpo." });
-        }
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
+            var mangas = await _mangaService.GetAll();
+            return Ok(mangas);
         }
 
-        var success = await _mangaService.Update(mangaToUpdate); // Añadido await
-        if (!success)
+        // GET api/v1/manga/paged?pageNumber=1&pageSize=10
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPaged([FromQuery] PaginationParameters paginationParameters)
         {
-            return NotFound(new { Message = $"Manga con MangadexId {id} no encontrado para actualizar." });
-        }
-        return NoContent();
-    }
+            var pagedResult = await _mangaService.GetPaged(paginationParameters);
 
-    // DELETE api/v1/manga/{id}
-    [HttpDelete("{id}")] // Cambiado a {id} sin :int
-    public async Task<IActionResult> Delete([FromRoute] string id) // Cambiado a string id
-    {
-        var success = await _mangaService.Delete(id); // Añadido await
-        if (!success)
-        {
-            return NotFound(new { Message = $"Manga con MangadexId {id} no encontrado para eliminar." });
+            // Opcionalmente, puedes agregar headers HTTP para la información de paginación
+            Response.Headers.Add("X-Pagination-TotalCount", pagedResult.Pagination.TotalCount.ToString());
+            Response.Headers.Add("X-Pagination-TotalPages", pagedResult.Pagination.TotalPages.ToString());
+            Response.Headers.Add("X-Pagination-CurrentPage", pagedResult.Pagination.CurrentPage.ToString());
+            Response.Headers.Add("X-Pagination-PageSize", pagedResult.Pagination.PageSize.ToString());
+            Response.Headers.Add("X-Pagination-HasNext", pagedResult.Pagination.HasNext.ToString());
+            Response.Headers.Add("X-Pagination-HasPrevious", pagedResult.Pagination.HasPrevious.ToString());
+
+            return Ok(pagedResult);
         }
-        return NoContent();
+
+        // GET api/v1/manga/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById([FromRoute] string id)
+        {
+            var manga = await _mangaService.GetById(id);
+            if (manga == null)
+            {
+                return NotFound(new { Message = $"Manga con MangadexId {id} no encontrado." });
+            }
+            return Ok(manga);
+        }
+
+        // POST api/v1/manga
+        [HttpPost]
+        public async Task<IActionResult> Add([FromBody] Manga manga)
+        {
+            // Si el cliente no envía un MangadexId, generamos uno nuevo.
+            if (string.IsNullOrEmpty(manga.MangadexId))
+            {
+                manga.MangadexId = Guid.NewGuid().ToString();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var newManga = await _mangaService.Add(manga);
+            return CreatedAtAction(nameof(GetById), new { id = newManga.MangadexId }, newManga);
+        }
+
+        // PUT api/v1/manga/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromRoute] string id, [FromBody] Manga mangaToUpdate)
+        {
+            if (id != mangaToUpdate.MangadexId)
+            {
+                return BadRequest(new { Message = "El ID de la ruta no coincide con el MangadexId del cuerpo." });
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var success = await _mangaService.Update(mangaToUpdate);
+            if (!success)
+            {
+                return NotFound(new { Message = $"Manga con MangadexId {id} no encontrado para actualizar." });
+            }
+            return NoContent();
+        }
+
+        // DELETE api/v1/manga/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] string id)
+        {
+            var success = await _mangaService.Delete(id);
+            if (!success)
+            {
+                return NotFound(new { Message = $"Manga con MangadexId {id} no encontrado para eliminar." });
+            }
+            return NoContent();
+        }
     }
 }
