@@ -4,6 +4,7 @@ using MiMangaBot.Services.Features.Prestamos;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace MiMangaBot.Controllers.V1
 {
@@ -21,64 +22,76 @@ namespace MiMangaBot.Controllers.V1
 
         // GET: api/v1/Prestamo
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Prestamo>>> GetAllPrestamos()
+        public async Task<ActionResult<IEnumerable<PrestamoGetDto>>> GetAllPrestamos()
         {
             var prestamos = await _prestamoService.GetAllPrestamos();
-            return Ok(prestamos);
+            var result = prestamos.Select(p => new PrestamoGetDto
+            {
+                Id = p.Id,
+                Name_Customer = p.Name_Customer,
+                MangadexId = p.MangadexId,
+                LoanDate = p.LoanDate,
+                ReturnDate = p.ReturnDate,
+                MangaTitle = p.Manga?.Title ?? string.Empty
+            });
+            return Ok(result);
         }
 
         // GET: api/v1/Prestamo/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Prestamo>> GetPrestamoById(int id)
+        public async Task<ActionResult<PrestamoGetDto>> GetPrestamoById(int id)
         {
             var prestamo = await _prestamoService.GetPrestamoById(id);
             if (prestamo == null)
             {
                 return NotFound();
             }
-            return Ok(prestamo);
+            var result = new PrestamoGetDto
+            {
+                Id = prestamo.Id,
+                Name_Customer = prestamo.Name_Customer,
+                MangadexId = prestamo.MangadexId,
+                LoanDate = prestamo.LoanDate,
+                ReturnDate = prestamo.ReturnDate,
+                MangaTitle = prestamo.Manga?.Title ?? string.Empty
+            };
+            return Ok(result);
         }
 
         // POST: api/v1/Prestamo
         [HttpPost]
-        public async Task<ActionResult<Prestamo>> AddPrestamo(Prestamo prestamo)
+        public async Task<ActionResult<Prestamo>> AddPrestamo(PrestamoDto prestamoDto)
         {
-            // Puedes añadir validaciones de datos del modelo aquí si no están en el servicio
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
+            var prestamo = new Prestamo
+            {
+                Name_Customer = prestamoDto.Name_Customer,
+                MangadexId = prestamoDto.MangadexId,
+                LoanDate = prestamoDto.LoanDate,
+                ReturnDate = prestamoDto.ReturnDate
+            };
             await _prestamoService.AddPrestamo(prestamo);
-            // Devuelve 201 CreatedAtAction para indicar que se creó un nuevo recurso
             return CreatedAtAction(nameof(GetPrestamoById), new { id = prestamo.Id }, prestamo);
         }
 
         // PUT: api/v1/Prestamo/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePrestamo(int id, Prestamo prestamo)
+        public async Task<IActionResult> UpdatePrestamo(int id, PrestamoDto prestamoDto)
         {
-            if (id != prestamo.Id)
-            {
-                return BadRequest("El ID en la URL no coincide con el ID del préstamo en el cuerpo de la solicitud.");
-            }
-
-            // Aquí puedes optar por buscar el préstamo existente primero si necesitas actualizar campos específicos
-            // en lugar de sobrescribir el objeto completo si el cliente envía un payload parcial.
             var existingPrestamo = await _prestamoService.GetPrestamoById(id);
             if (existingPrestamo == null)
             {
                 return NotFound($"Préstamo con ID {id} no encontrado.");
             }
-
-            // Actualiza las propiedades necesarias del préstamo existente
-            existingPrestamo.Name_Customer = prestamo.Name_Customer;
-            existingPrestamo.MangadexId = prestamo.MangadexId;
-            existingPrestamo.ReturnDate = prestamo.ReturnDate;
+            existingPrestamo.Name_Customer = prestamoDto.Name_Customer;
+            existingPrestamo.MangadexId = prestamoDto.MangadexId;
+            existingPrestamo.ReturnDate = prestamoDto.ReturnDate;
             // No actualizar LoanDate aquí, ya que es la fecha de creación original.
-
-            await _prestamoService.UpdatePrestamo(existingPrestamo); // Pasa el objeto actualizado
-            return NoContent(); // 204 No Content para una actualización exitosa
+            await _prestamoService.UpdatePrestamo(existingPrestamo);
+            return NoContent();
         }
 
         // DELETE: api/v1/Prestamo/{id}

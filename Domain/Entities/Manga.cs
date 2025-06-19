@@ -9,7 +9,7 @@ public class Manga
 {
     [Key] // Indica que esta es la clave primaria de la entidad
     [Column("mangadex_id")] // Mapea esta propiedad a la columna 'mangadex_id' en la DB
-    public string MangadexId { get; set; } = Guid.NewGuid().ToString(); // Cambiado a string para mangadex_id, genera un nuevo GUID por defecto
+    public string MangadexId { get; set; } // Eliminada la asignación por defecto
 
     [Required] // Asegura que el título sea requerido y no nulo en la DB
     [Column("title_main")] // Mapea a la columna 'title_main' en la DB

@@ -18,7 +18,27 @@ namespace MiMangaBot.Domain.Entities
         {
             Name_Customer = string.Empty;
             MangadexId = string.Empty;
-            Manga = new Manga();
+            // No inicializar Manga aquí
         }
+    }
+
+    // DTO para crear y actualizar préstamos
+    public class PrestamoDto
+    {
+        public string Name_Customer { get; set; }
+        public string MangadexId { get; set; }
+        public DateTime LoanDate { get; set; }
+        public DateTime ReturnDate { get; set; }
+    }
+
+    // DTO para la respuesta del GET de préstamos
+    public class PrestamoGetDto
+    {
+        public int Id { get; set; }
+        public string Name_Customer { get; set; }
+        public string MangadexId { get; set; }
+        public DateTime LoanDate { get; set; }
+        public DateTime ReturnDate { get; set; }
+        public string MangaTitle { get; set; }
     }
 }
