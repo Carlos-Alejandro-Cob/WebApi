@@ -1,33 +1,39 @@
-// MiMangaBot/Program.cs
 using MiMangaBot.Services.Features.Mangas;
-using MiMangaBot.Domain.Interfaces; // Para IMangaRepository
-using MiMangaBot.Data; // Para ApplicationDbContext
-using MiMangaBot.Data.Repositories; // Para MangaRepository
+using MiMangaBot.Services.Features.Prestamos; // Asegúrate de que este using esté presente
+using MiMangaBot.Domain.Interfaces;
+using MiMangaBot.Data;
+using MiMangaBot.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// --- ¡NUEVAS LÍNEAS PARA EL DBContext Y EL REPOSITORIO! ---
-// 1. Configura el DbContext
+// Configura el DbContext para MySQL
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("La cadena de conexión 'DefaultConnection' no está configurada.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySQL(connectionString)
-           .LogTo(Console.WriteLine, LogLevel.Information) // Opcional: para ver las queries en la consola durante el desarrollo
-           .EnableSensitiveDataLogging() // Opcional: para ver parámetros de queries en consola (solo desarrollo)
-           .EnableDetailedErrors()); // Opcional: para errores más detallados de EF Core
+    .LogTo(Console.WriteLine, LogLevel.Information) // Opcional: para ver las queries en la consola durante el desarrollo
+    .EnableSensitiveDataLogging() // Opcional: para ver parámetros de queries en consola (solo desarrollo)
+    .EnableDetailedErrors()); // Opcional: para errores más detallados de EF Core
 
-// 2. Registra la interfaz y la implementación del Repositorio
+// Registra la interfaz y la implementación del Repositorio de Mangas
 builder.Services.AddScoped<IMangaRepository, MangaRepository>();
 
-// 3. Registra tu MangaService (que ahora depende de IMangaRepository)
+// Registra tu MangaService (que ahora depende de IMangaRepository)
 builder.Services.AddScoped<MangaService>();
-// --- FIN DE LAS NUEVAS LÍNEAS ---
 
+// --- NUEVA LÍNEA AÑADIDA PARA REGISTRAR PRESTAMOSERVICE ---
+builder.Services.AddScoped<PrestamoService>();
+// --- FIN DE LA NUEVA LÍNEA ---
+
+// Registra la interfaz y la implementación del Repositorio de Préstamos
+builder.Services.AddScoped<IPrestamoRepository, PrestamoRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -45,6 +51,22 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+// --- CONFIGURACIÓN DEL VERSIONADO DE API ---
+builder.Services.AddApiVersioning(options =>
+{
+    options.ReportApiVersions = true;
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+});
+
+// Configuración para la integración de Swagger con el versionado de API
+builder.Services.AddVersionedApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+// --- FIN DE LA CONFIGURACIÓN DEL VERSIONADO DE API ---
 
 
 var app = builder.Build();
