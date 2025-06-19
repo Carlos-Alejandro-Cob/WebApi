@@ -1,44 +1,51 @@
 // MiMangaBot/Services/Features/Mangas/MangaService.cs
 using MiMangaBot.Domain.Entities;
-using MiMangaBot.Domain.Interfaces; // ¡Añade este using para tu interfaz!
+using MiMangaBot.Domain.Interfaces;
+using MiMangaBot.Domain.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MiMangaBot.Services.Features.Mangas;
-
-public class MangaService
+namespace MiMangaBot.Services.Features.Mangas
 {
-    private readonly IMangaRepository _mangaRepository;
-
-    public MangaService(IMangaRepository mangaRepository) // Ahora inyectamos la interfaz
+    public class MangaService
     {
-        _mangaRepository = mangaRepository;
-    }
+        private readonly IMangaRepository _mangaRepository;
 
-    // Operaciones CRUD (todos los métodos ahora llaman al repositorio)
+        public MangaService(IMangaRepository mangaRepository)
+        {
+            _mangaRepository = mangaRepository;
+        }
 
-    public async Task<IEnumerable<Manga>> GetAll()
-    {
-        return await _mangaRepository.GetAllAsync();
-    }
+        // Operaciones CRUD
 
-    public async Task<Manga?> GetById(string id)
-    {
-        return await _mangaRepository.GetByIdAsync(id);
-    }
+        public async Task<IEnumerable<Manga>> GetAll()
+        {
+            return await _mangaRepository.GetAllAsync();
+        }
 
-    public async Task<Manga> Add(Manga manga)
-    {
-        return await _mangaRepository.AddAsync(manga);
-    }
+        public async Task<PagedResult<Manga>> GetPaged(PaginationParameters paginationParameters)
+        {
+            return await _mangaRepository.GetPagedAsync(paginationParameters);
+        }
 
-    public async Task<bool> Update(Manga mangaToUpdate)
-    {
-        return await _mangaRepository.UpdateAsync(mangaToUpdate);
-    }
+        public async Task<Manga?> GetById(string id)
+        {
+            return await _mangaRepository.GetByIdAsync(id);
+        }
 
-    public async Task<bool> Delete(string id)
-    {
-        return await _mangaRepository.DeleteAsync(id);
+        public async Task<Manga> Add(Manga manga)
+        {
+            return await _mangaRepository.AddAsync(manga);
+        }
+
+        public async Task<bool> Update(Manga mangaToUpdate)
+        {
+            return await _mangaRepository.UpdateAsync(mangaToUpdate);
+        }
+
+        public async Task<bool> Delete(string id)
+        {
+            return await _mangaRepository.DeleteAsync(id);
+        }
     }
 }
