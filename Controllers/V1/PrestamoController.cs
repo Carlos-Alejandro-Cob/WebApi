@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using MiMangaBot.Domain.Models;
 
 namespace MiMangaBot.Controllers.V1
 {
@@ -27,12 +28,12 @@ namespace MiMangaBot.Controllers.V1
             var prestamos = await _prestamoService.GetAllPrestamos();
             var result = prestamos.Select(p => new PrestamoGetDto
             {
-                Id = p.Id,
+                ID = p.ID,
                 Name_Customer = p.Name_Customer,
-                MangadexId = p.MangadexId,
+                MangaId = p.MangaId,
                 LoanDate = p.LoanDate,
                 ReturnDate = p.ReturnDate,
-                MangaTitle = p.Manga?.Title ?? string.Empty
+                MangaName = p.Manga?.Name_Main ?? string.Empty
             });
             return Ok(result);
         }
@@ -48,12 +49,12 @@ namespace MiMangaBot.Controllers.V1
             }
             var result = new PrestamoGetDto
             {
-                Id = prestamo.Id,
+                ID = prestamo.ID,
                 Name_Customer = prestamo.Name_Customer,
-                MangadexId = prestamo.MangadexId,
+                MangaId = prestamo.MangaId,
                 LoanDate = prestamo.LoanDate,
                 ReturnDate = prestamo.ReturnDate,
-                MangaTitle = prestamo.Manga?.Title ?? string.Empty
+                MangaName = prestamo.Manga?.Name_Main ?? string.Empty
             };
             return Ok(result);
         }
@@ -69,12 +70,12 @@ namespace MiMangaBot.Controllers.V1
             var prestamo = new Prestamo
             {
                 Name_Customer = prestamoDto.Name_Customer,
-                MangadexId = prestamoDto.MangadexId,
+                MangaId = prestamoDto.MangaId,
                 LoanDate = prestamoDto.LoanDate,
                 ReturnDate = prestamoDto.ReturnDate
             };
             await _prestamoService.AddPrestamo(prestamo);
-            return CreatedAtAction(nameof(GetPrestamoById), new { id = prestamo.Id }, prestamo);
+            return CreatedAtAction(nameof(GetPrestamoById), new { id = prestamo.ID }, prestamo);
         }
 
         // PUT: api/v1/Prestamo/{id}
@@ -87,9 +88,9 @@ namespace MiMangaBot.Controllers.V1
                 return NotFound($"Préstamo con ID {id} no encontrado.");
             }
             existingPrestamo.Name_Customer = prestamoDto.Name_Customer;
-            existingPrestamo.MangadexId = prestamoDto.MangadexId;
+            existingPrestamo.MangaId = prestamoDto.MangaId;
+            existingPrestamo.LoanDate = prestamoDto.LoanDate;
             existingPrestamo.ReturnDate = prestamoDto.ReturnDate;
-            // No actualizar LoanDate aquí, ya que es la fecha de creación original.
             await _prestamoService.UpdatePrestamo(existingPrestamo);
             return NoContent();
         }
@@ -123,14 +124,14 @@ namespace MiMangaBot.Controllers.V1
             return Ok(prestamos);
         }
 
-        // GET: api/v1/Prestamo/byMangaId/{mangaId}
-        [HttpGet("byMangaId/{mangaId}")]
-        public async Task<ActionResult<IEnumerable<Prestamo>>> GetPrestamosByMangaId(string mangaId)
+        // GET: api/v1/Prestamo/byMangaId/{mangald}
+        [HttpGet("byMangaId/{mangald}")]
+        public async Task<ActionResult<IEnumerable<Prestamo>>> GetPrestamosByMangaId(int mangald)
         {
-            var prestamos = await _prestamoService.GetPrestamosByMangaId(mangaId);
+            var prestamos = await _prestamoService.GetPrestamosByMangaId(mangald);
             if (!prestamos.Any())
             {
-                return NotFound($"No se encontraron préstamos para el Manga ID: {mangaId}");
+                return NotFound($"No se encontraron préstamos para el Manga ID: {mangald}");
             }
             return Ok(prestamos);
         }

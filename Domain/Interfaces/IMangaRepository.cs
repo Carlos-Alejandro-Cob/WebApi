@@ -10,9 +10,9 @@ namespace MiMangaBot.Domain.Interfaces
     {
         Task<IEnumerable<Manga>> GetAllAsync();
         Task<PagedResult<Manga>> GetPagedAsync(PaginationParameters paginationParameters);
-        Task<Manga?> GetByIdAsync(string id);
+        Task<Manga?> GetByIdAsync(int id);
         Task<Manga> AddAsync(Manga manga);
         Task<bool> UpdateAsync(Manga manga);
-        Task<bool> DeleteAsync(string id);
+        Task<bool> DeleteAsync(int id);
     }
 }

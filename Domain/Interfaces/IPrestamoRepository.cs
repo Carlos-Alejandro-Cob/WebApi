@@ -14,6 +14,6 @@ namespace MiMangaBot.Domain.Interfaces
         Task DeleteAsync(int id);
         // Puedes añadir métodos específicos, ej. para buscar por nombre de cliente o manga
         Task<IEnumerable<Prestamo>> GetLoansByCustomerNameAsync(string customerName);
-        Task<IEnumerable<Prestamo>> GetLoansByMangaIdAsync(string mangadexId);
+        Task<IEnumerable<Prestamo>> GetLoansByMangaIdAsync(int mangald);
     }
 }

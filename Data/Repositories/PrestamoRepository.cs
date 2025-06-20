@@ -19,14 +19,14 @@ namespace MiMangaBot.Data.Repositories
 
         public async Task<IEnumerable<Prestamo>> GetAllAsync()
         {
-            // Incluye el objeto Manga si necesitas sus datos junto con el préstamo
+            // Incluye el objeto Manga relacionado con el préstamo
             return await _context.Prestamos.Include(p => p.Manga).ToListAsync();
         }
 
         public async Task<Prestamo?> GetByIdAsync(int id)
         {
-            // Incluye el objeto Manga si necesitas sus datos junto con el préstamo
-            return await _context.Prestamos.Include(p => p.Manga).FirstOrDefaultAsync(p => p.Id == id);
+            // Incluye el objeto Manga relacionado con el préstamo
+            return await _context.Prestamos.Include(p => p.Manga).FirstOrDefaultAsync(p => p.ID == id);
         }
 
         public async Task AddAsync(Prestamo prestamo)
@@ -56,15 +56,15 @@ namespace MiMangaBot.Data.Repositories
         {
             return await _context.Prestamos
                                  .Include(p => p.Manga)
-                                 .Where(p => p.Name_Customer.Contains(customerName))
+                                 .Where(p => p.Name_Customer != null && p.Name_Customer.Contains(customerName))
                                  .ToListAsync();
         }
 
-        public async Task<IEnumerable<Prestamo>> GetLoansByMangaIdAsync(string mangadexId)
+        public async Task<IEnumerable<Prestamo>> GetLoansByMangaIdAsync(int mangaId)
         {
             return await _context.Prestamos
                                  .Include(p => p.Manga)
-                                 .Where(p => p.MangadexId == mangadexId)
+                                 .Where(p => p.MangaId == mangaId)
                                  .ToListAsync();
         }
     }

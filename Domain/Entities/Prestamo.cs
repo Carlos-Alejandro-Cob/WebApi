@@ -1,44 +1,28 @@
-// home/MiMangaBot/Domain/Entities/Prestamo.cs
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MiMangaBot.Domain.Entities
 {
     public class Prestamo
     {
-        public int Id { get; set; } // Clave Primaria
-        public string Name_Customer { get; set; } // Nombre del cliente
-        public string MangadexId { get; set; } // Clave Foránea al Manga (ahora string y renombrada)
-        public DateTime LoanDate { get; set; } // Fecha de préstamo
-        public DateTime ReturnDate { get; set; } // Fecha de devolución esperada
+        [Key]
+        [Column("ID")]
+        public int ID { get; set; }
 
-        // Propiedad de navegación para el Manga (opcional, pero útil si quieres cargar el objeto Manga completo)
-        public Manga Manga { get; set; } 
+        [Column("MangaId")]
+        public int? MangaId { get; set; }
 
-        public Prestamo()
-        {
-            Name_Customer = string.Empty;
-            MangadexId = string.Empty;
-            // No inicializar Manga aquí
-        }
-    }
+        [Column("Name_Customer")]
+        public string? Name_Customer { get; set; }
 
-    // DTO para crear y actualizar préstamos
-    public class PrestamoDto
-    {
-        public string Name_Customer { get; set; }
-        public string MangadexId { get; set; }
-        public DateTime LoanDate { get; set; }
-        public DateTime ReturnDate { get; set; }
-    }
+        [Column("LoanDate")]
+        public DateTime? LoanDate { get; set; }
 
-    // DTO para la respuesta del GET de préstamos
-    public class PrestamoGetDto
-    {
-        public int Id { get; set; }
-        public string Name_Customer { get; set; }
-        public string MangadexId { get; set; }
-        public DateTime LoanDate { get; set; }
-        public DateTime ReturnDate { get; set; }
-        public string MangaTitle { get; set; }
+        [Column("ReturnDate")]
+        public DateTime? ReturnDate { get; set; }
+
+        // Propiedad de navegación
+        public Manga? Manga { get; set; }
     }
 }

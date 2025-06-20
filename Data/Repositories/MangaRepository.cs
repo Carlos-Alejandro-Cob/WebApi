@@ -39,9 +39,9 @@ namespace MiMangaBot.Data.Repositories
             return new PagedResult<Manga>(mangas, totalCount, paginationParameters.PageNumber, paginationParameters.PageSize);
         }
 
-        public async Task<Manga?> GetByIdAsync(string id)
+        public async Task<Manga?> GetByIdAsync(int id)
         {
-            return await _context.Mangas.FirstOrDefaultAsync(m => m.MangadexId == id);
+            return await _context.Mangas.FirstOrDefaultAsync(m => m.MangaId == id);
         }
 
         public async Task<Manga> AddAsync(Manga manga)
@@ -53,7 +53,7 @@ namespace MiMangaBot.Data.Repositories
 
         public async Task<bool> UpdateAsync(Manga manga)
         {
-            var existingManga = await _context.Mangas.FirstOrDefaultAsync(m => m.MangadexId == manga.MangadexId);
+            var existingManga = await _context.Mangas.FirstOrDefaultAsync(m => m.MangaId == manga.MangaId);
             if (existingManga != null)
             {
                 _context.Entry(existingManga).CurrentValues.SetValues(manga);
@@ -63,9 +63,9 @@ namespace MiMangaBot.Data.Repositories
             return false;
         }
 
-        public async Task<bool> DeleteAsync(string id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var mangaToRemove = await _context.Mangas.FirstOrDefaultAsync(m => m.MangadexId == id);
+            var mangaToRemove = await _context.Mangas.FirstOrDefaultAsync(m => m.MangaId == id);
             if (mangaToRemove != null)
             {
                 _context.Mangas.Remove(mangaToRemove);

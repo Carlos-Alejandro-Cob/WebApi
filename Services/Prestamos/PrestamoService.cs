@@ -28,9 +28,7 @@ namespace MiMangaBot.Services.Features.Prestamos
 
         public async Task AddPrestamo(Prestamo prestamo)
         {
-            // Aquí puedes añadir lógica de negocio antes de guardar, por ejemplo:
-            // - Validar que el MangaId exista
-            // - Verificar disponibilidad del manga (si tienes ese concepto)
+            // Puedes validar que el MangadexId exista en la tabla mangas si es necesario
             await _prestamoRepository.AddAsync(prestamo);
         }
 
@@ -50,9 +48,9 @@ namespace MiMangaBot.Services.Features.Prestamos
             return await _prestamoRepository.GetLoansByCustomerNameAsync(customerName);
         }
 
-        public async Task<IEnumerable<Prestamo>> GetPrestamosByMangaId(string mangadexId)
+        public async Task<IEnumerable<Prestamo>> GetPrestamosByMangaId(int mangald)
         {
-            return await _prestamoRepository.GetLoansByMangaIdAsync(mangadexId);
+            return await _prestamoRepository.GetLoansByMangaIdAsync(mangald);
         }
     }
 }

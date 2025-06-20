@@ -28,7 +28,7 @@ namespace MiMangaBot.Services.Features.Mangas
             return await _mangaRepository.GetPagedAsync(paginationParameters);
         }
 
-        public async Task<Manga?> GetById(string id)
+        public async Task<Manga?> GetById(int id)
         {
             return await _mangaRepository.GetByIdAsync(id);
         }
@@ -43,7 +43,7 @@ namespace MiMangaBot.Services.Features.Mangas
             return await _mangaRepository.UpdateAsync(mangaToUpdate);
         }
 
-        public async Task<bool> Delete(string id)
+        public async Task<bool> Delete(int id)
         {
             return await _mangaRepository.DeleteAsync(id);
         }

@@ -27,18 +27,20 @@ public class ApplicationDbContext : DbContext
 
         // Configuración para la entidad Prestamo
         modelBuilder.Entity<Prestamo>()
-            .HasKey(p => p.Id); // Define 'Id' como la clave primaria de Prestamo
+            .HasKey(p => p.ID);
 
         // Configuración de la relación entre Prestamo y Manga (muchos a uno)
         // Un Prestamo tiene un Manga
         modelBuilder.Entity<Prestamo>()
-            .HasOne(p => p.Manga)       
-            .WithMany()                 
-            .HasForeignKey(p => p.MangadexId) // Ahora la clave foránea es string y se llama MangadexId
-            .HasPrincipalKey(m => m.MangadexId) // Especifica la clave principal explícitamente
+            .HasOne(p => p.Manga)
+            .WithMany()
+            .HasForeignKey(p => p.MangaId)
+            .HasPrincipalKey(m => m.MangaId)
             .OnDelete(DeleteBehavior.Restrict); // Comportamiento al borrar un Manga: Restringe la eliminación si hay préstamos asociados
         
         // No hay configuración para Name_Customer aquí, ya que es una propiedad simple
         // y no forma parte de una relación de clave foránea.
+
+        modelBuilder.Entity<Prestamo>().ToTable("prestamos");
     }
 }
