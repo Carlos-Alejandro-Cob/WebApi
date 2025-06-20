@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MiMangaBot.Domain.Models;
 
 namespace MiMangaBot.Data.Repositories
 {
@@ -66,6 +67,17 @@ namespace MiMangaBot.Data.Repositories
                                  .Include(p => p.Manga)
                                  .Where(p => p.MangaId == mangaId)
                                  .ToListAsync();
+        }
+
+        public async Task<PagedResult<Prestamo>> GetAllPagedAsync(PaginationParameters paginationParameters)
+        {
+            var query = _context.Prestamos.Include(p => p.Manga).AsQueryable();
+            var totalCount = await query.CountAsync();
+            var data = await query
+                .Skip((paginationParameters.PageNumber - 1) * paginationParameters.PageSize)
+                .Take(paginationParameters.PageSize)
+                .ToListAsync();
+            return new PagedResult<Prestamo>(data, totalCount, paginationParameters.PageNumber, paginationParameters.PageSize);
         }
     }
 }

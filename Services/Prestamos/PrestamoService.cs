@@ -3,6 +3,7 @@ using MiMangaBot.Domain.Entities;
 using MiMangaBot.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MiMangaBot.Domain.Models;
 
 namespace MiMangaBot.Services.Features.Prestamos
 {
@@ -51,6 +52,11 @@ namespace MiMangaBot.Services.Features.Prestamos
         public async Task<IEnumerable<Prestamo>> GetPrestamosByMangaId(int mangald)
         {
             return await _prestamoRepository.GetLoansByMangaIdAsync(mangald);
+        }
+
+        public async Task<PagedResult<Prestamo>> GetAllPrestamosPaged(PaginationParameters paginationParameters)
+        {
+            return await _prestamoRepository.GetAllPagedAsync(paginationParameters);
         }
     }
 }

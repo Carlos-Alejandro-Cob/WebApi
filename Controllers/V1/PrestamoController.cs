@@ -143,5 +143,29 @@ namespace MiMangaBot.Controllers.V1
             }
             return Ok(prestamos);
         }
+
+        // GET: api/v1/Prestamo/paged
+        [HttpGet("paged")]
+        [Authorize(Roles = "Usuario,Admin")]
+        public async Task<ActionResult<PagedResult<PrestamoGetDto>>> GetAllPrestamosPaged([FromQuery] PaginationParameters paginationParameters)
+        {
+            var pagedPrestamos = await _prestamoService.GetAllPrestamosPaged(paginationParameters);
+            var result = pagedPrestamos.Data.Select(p => new PrestamoGetDto
+            {
+                ID = p.ID,
+                Name_Customer = p.Name_Customer,
+                MangaId = p.MangaId,
+                LoanDate = p.LoanDate,
+                ReturnDate = p.ReturnDate,
+                MangaName = p.Manga?.Name_Main ?? string.Empty
+            }).ToList();
+            var pagedResult = new PagedResult<PrestamoGetDto>(
+                result,
+                pagedPrestamos.Pagination.TotalCount,
+                pagedPrestamos.Pagination.CurrentPage,
+                pagedPrestamos.Pagination.PageSize
+            );
+            return Ok(pagedResult);
+        }
     }
 }

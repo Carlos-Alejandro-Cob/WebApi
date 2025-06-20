@@ -2,6 +2,7 @@
 using MiMangaBot.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MiMangaBot.Domain.Models;
 
 namespace MiMangaBot.Domain.Interfaces
 {
@@ -15,5 +16,6 @@ namespace MiMangaBot.Domain.Interfaces
         // Puedes añadir métodos específicos, ej. para buscar por nombre de cliente o manga
         Task<IEnumerable<Prestamo>> GetLoansByCustomerNameAsync(string customerName);
         Task<IEnumerable<Prestamo>> GetLoansByMangaIdAsync(int mangald);
+        Task<PagedResult<Prestamo>> GetAllPagedAsync(PaginationParameters paginationParameters);
     }
 }
