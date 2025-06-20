@@ -38,13 +38,11 @@ namespace MiMangaBot.Services.Features.Usuarios
         public string? Login(string username, string password, string jwtKey, out string error)
         {
             error = string.Empty;
-            if (!_usuarioRepository.ValidatePassword(username, password))
-            {
-                error = "Usuario o contraseña incorrectos.";
-                return null;
-            }
-            var usuario = _usuarioRepository.GetByUsername(username);
-            if (usuario == null)
+            // Usuario y contraseña hardcodeados
+            const string hardcodedUser = "admin";
+            const string hardcodedPass = "admin123";
+            const string hardcodedRol = "Admin";
+            if (username != hardcodedUser || password != hardcodedPass)
             {
                 error = "Usuario o contraseña incorrectos.";
                 return null;
@@ -52,8 +50,8 @@ namespace MiMangaBot.Services.Features.Usuarios
             // Crear claims
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, usuario.Username),
-                new Claim(ClaimTypes.Role, usuario.Rol)
+                new Claim(ClaimTypes.Name, hardcodedUser),
+                new Claim(ClaimTypes.Role, hardcodedRol)
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -62,7 +60,13 @@ namespace MiMangaBot.Services.Features.Usuarios
                 expires: DateTime.Now.AddHours(2),
                 signingCredentials: creds
             );
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+            return tokenString;
+        }
+
+        public bool ValidarToken(string username, string token)
+        {
+            return _usuarioRepository.IsTokenValid(username, token);
         }
     }
 } 

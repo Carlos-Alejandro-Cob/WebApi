@@ -32,6 +32,18 @@ namespace MiMangaBot.Data.Repositories
             return usuario.Password == HashPassword(password);
         }
 
+        public void Update(Usuario usuario)
+        {
+            _context.Usuarios.Update(usuario);
+            _context.SaveChanges();
+        }
+
+        public bool IsTokenValid(string username, string token)
+        {
+            var usuario = GetByUsername(username);
+            return usuario != null && usuario.Token == token;
+        }
+
         private string HashPassword(string password)
         {
             using var sha256 = SHA256.Create();

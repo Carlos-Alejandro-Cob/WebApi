@@ -16,19 +16,6 @@ namespace MiMangaBot.Controllers.V1
             _usuarioService = new UsuarioService(context);
         }
 
-        [HttpPost("register")]
-        public IActionResult Register([FromBody] UsuarioRegisterDto dto)
-        {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password) || string.IsNullOrWhiteSpace(dto.Rol))
-                return BadRequest("Datos incompletos");
-            if (dto.Password.Length < 6)
-                return BadRequest("La contraseña debe tener al menos 6 caracteres.");
-            if (_usuarioService.Register(dto, out string error))
-                return Ok("Usuario registrado correctamente");
-            else
-                return BadRequest(error);
-        }
-
         [HttpPost("login")]
         public IActionResult Login([FromBody] UsuarioLoginDto dto, [FromServices] IConfiguration config)
         {
