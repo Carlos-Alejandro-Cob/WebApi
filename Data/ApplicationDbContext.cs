@@ -17,6 +17,9 @@ public class ApplicationDbContext : DbContext
     // ¡Nuevo! DbSet para la entidad Prestamo
     public DbSet<Prestamo> Prestamos { get; set; }
 
+    // ¡Nuevo! DbSet para la entidad Usuario
+    public DbSet<Usuario> Usuarios { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

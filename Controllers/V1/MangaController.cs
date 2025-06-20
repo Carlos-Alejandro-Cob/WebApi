@@ -5,6 +5,7 @@ using MiMangaBot.Services.Features.Mangas;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MiMangaBot.Controllers.V1
 {
@@ -21,6 +22,7 @@ namespace MiMangaBot.Controllers.V1
 
         // GET api/v1/manga (sin paginación - mantener para compatibilidad)
         [HttpGet]
+        [Authorize(Roles = "Usuario,Admin")]
         public async Task<IActionResult> GetAll()
         {
             var mangas = await _mangaService.GetAll();
@@ -29,6 +31,7 @@ namespace MiMangaBot.Controllers.V1
 
         // GET api/v1/manga/paged?pageNumber=1&pageSize=10
         [HttpGet("paged")]
+        [Authorize(Roles = "Usuario,Admin")]
         public async Task<IActionResult> GetPaged([FromQuery] PaginationParameters paginationParameters)
         {
             var pagedResult = await _mangaService.GetPaged(paginationParameters);
@@ -46,6 +49,7 @@ namespace MiMangaBot.Controllers.V1
 
         // GET api/v1/manga/{id}
         [HttpGet("{id}")]
+        [Authorize(Roles = "Usuario,Admin")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             var manga = await _mangaService.GetById(id);
@@ -58,6 +62,7 @@ namespace MiMangaBot.Controllers.V1
 
         // POST api/v1/manga
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Add([FromBody] Manga manga)
         {
             if (!ModelState.IsValid)
@@ -70,6 +75,7 @@ namespace MiMangaBot.Controllers.V1
 
         // PUT api/v1/manga/{id}
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Manga mangaToUpdate)
         {
             if (id != mangaToUpdate.MangaId)
@@ -90,6 +96,7 @@ namespace MiMangaBot.Controllers.V1
 
         // DELETE api/v1/manga/{id}
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var success = await _mangaService.Delete(id);

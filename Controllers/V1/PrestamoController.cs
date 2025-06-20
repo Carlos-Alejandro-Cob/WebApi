@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using MiMangaBot.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MiMangaBot.Controllers.V1
 {
@@ -23,6 +24,7 @@ namespace MiMangaBot.Controllers.V1
 
         // GET: api/v1/Prestamo
         [HttpGet]
+        [Authorize(Roles = "Usuario,Admin")]
         public async Task<ActionResult<IEnumerable<PrestamoGetDto>>> GetAllPrestamos()
         {
             var prestamos = await _prestamoService.GetAllPrestamos();
@@ -40,6 +42,7 @@ namespace MiMangaBot.Controllers.V1
 
         // GET: api/v1/Prestamo/{id}
         [HttpGet("{id}")]
+        [Authorize(Roles = "Usuario,Admin")]
         public async Task<ActionResult<PrestamoGetDto>> GetPrestamoById(int id)
         {
             var prestamo = await _prestamoService.GetPrestamoById(id);
@@ -61,6 +64,7 @@ namespace MiMangaBot.Controllers.V1
 
         // POST: api/v1/Prestamo
         [HttpPost]
+        [Authorize(Roles = "Usuario,Admin")]
         public async Task<ActionResult<Prestamo>> AddPrestamo(PrestamoDto prestamoDto)
         {
             if (!ModelState.IsValid)
@@ -80,6 +84,7 @@ namespace MiMangaBot.Controllers.V1
 
         // PUT: api/v1/Prestamo/{id}
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdatePrestamo(int id, PrestamoDto prestamoDto)
         {
             var existingPrestamo = await _prestamoService.GetPrestamoById(id);
@@ -97,6 +102,7 @@ namespace MiMangaBot.Controllers.V1
 
         // DELETE: api/v1/Prestamo/{id}
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeletePrestamo(int id)
         {
             var existingPrestamo = await _prestamoService.GetPrestamoById(id);
@@ -110,6 +116,7 @@ namespace MiMangaBot.Controllers.V1
 
         // GET: api/v1/Prestamo/byCustomerName?name={customerName}
         [HttpGet("byCustomerName")]
+        [Authorize(Roles = "Usuario,Admin")]
         public async Task<ActionResult<IEnumerable<Prestamo>>> GetPrestamosByCustomerName([FromQuery] string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -126,6 +133,7 @@ namespace MiMangaBot.Controllers.V1
 
         // GET: api/v1/Prestamo/byMangaId/{mangald}
         [HttpGet("byMangaId/{mangald}")]
+        [Authorize(Roles = "Usuario,Admin")]
         public async Task<ActionResult<IEnumerable<Prestamo>>> GetPrestamosByMangaId(int mangald)
         {
             var prestamos = await _prestamoService.GetPrestamosByMangaId(mangald);
