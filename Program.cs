@@ -58,6 +58,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Agregar configuración de CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("InvitadosPermitidos", policy =>
+        policy.WithOrigins("http://187.155.101.200", "https://187.155.101.200")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -66,12 +75,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Version = "v1",
         Title = "MangaBot API",
-        Description = "Una API para gestionar una increíble colección de mangas",
-        Contact = new Microsoft.OpenApi.Models.OpenApiContact
-        {
-            Name = "Tu Nombre/Equipo",
-            Url = new Uri("https://tuwebsite.com")
-        }
+        Description = "Una API para gestionar una increíble colección de mangas"
     });
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
@@ -128,6 +132,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Usar CORS antes de autenticación y autorización
+app.UseCors("InvitadosPermitidos");
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
